@@ -5,6 +5,7 @@ import { connectToDatabase, disconnectFromDatabase } from './utils/database';
 import logger from './utils/logger';
 import { CORS_ORIGIN } from './constants';
 import helmet from 'helmet';
+import videoRoute from './modules/videos/videoRoute';
 
 const PORT = process.env.PORT || 4001;
 
@@ -18,6 +19,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(helmet());
+
+// Routes
+app.use("/api/videos", videoRoute);
 
 const server = app.listen(PORT, async () => {
   await connectToDatabase();
