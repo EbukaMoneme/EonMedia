@@ -1,4 +1,4 @@
-import { getModelForClass, prop, Ref } from '@typegoose/typegoose';
+import { getModelForClass, prop, Ref } from "@typegoose/typegoose";
 import { v4 as uuid } from "uuid";
 
 export class Video {
@@ -20,6 +20,6 @@ export class Video {
 
 export const VideoModel = getModelForClass(Video, {
   schemaOptions: {
-    timestamps: true
+    timestamps: true,
   },
 });

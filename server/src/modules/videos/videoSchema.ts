@@ -1,4 +1,4 @@
-import {boolean, object, string, TypeOf} from 'zod';
+import { boolean, object, string, TypeOf } from "zod";
 
 export const updateVideoSchema = {
   body: object({

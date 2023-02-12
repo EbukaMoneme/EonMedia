@@ -1,27 +1,27 @@
 import busboy from "busboy";
-import fs from 'fs';
+import fs from "fs";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { Video } from "./videoModel";
 import { createVideo, findVideo, findVideos } from "./videoService";
 import { UpdateVideoBody, UpdateVideoParams } from "./videoSchema";
 
-const MIME_TYPES = ['video/mp4', 'video/mov', 'video/quicktime'];
+const MIME_TYPES = ["video/mp4", "video/mov", "video/quicktime"];
 
-const CHUNK_SIZE_IN_BYTES = 1000000 // 1mb
+const CHUNK_SIZE_IN_BYTES = 1000000; // 1mb
 
 const getPath = ({
-  videoId, 
-  extension
+  videoId,
+  extension,
 }: {
-  videoId: Video["videoId"]; 
+  videoId: Video["videoId"];
   extension: Video["extension"];
 }) => {
   return `${process.cwd()}/videos/${videoId}.${extension}`;
-}
+};
 
 export const uploadVideoHandler = async (req: Request, res: Response) => {
-  const bb = busboy({headers: req.headers});
+  const bb = busboy({ headers: req.headers });
   const video = await createVideo();
 
   bb.on("file", async (_, file, info) => {
@@ -30,20 +30,20 @@ export const uploadVideoHandler = async (req: Request, res: Response) => {
       // Delete created video
     }
 
-    const extension = info.mimeType.split('/')[1];
+    const extension = info.mimeType.split("/")[1];
 
     const filePath = getPath({
       videoId: video.videoId,
       extension,
-    })
+    });
 
-    video.extension = extension
+    video.extension = extension;
 
     await video.save();
 
-    const stream = fs.createWriteStream(filePath)
+    const stream = fs.createWriteStream(filePath);
 
-    file.pipe(stream)
+    file.pipe(stream);
   });
 
   bb.on("close", () => {
@@ -60,11 +60,11 @@ export const uploadVideoHandler = async (req: Request, res: Response) => {
 };
 
 export const updateVideoHandler = async (
-  req: Request<UpdateVideoParams, {}, UpdateVideoBody>, 
+  req: Request<UpdateVideoParams, {}, UpdateVideoBody>,
   res: Response
 ) => {
-  const {videoId} = req.params;
-  const {title, description, published} = req.body;
+  const { videoId } = req.params;
+  const { title, description, published } = req.body;
 
   const video = await findVideo(videoId);
 
@@ -78,16 +78,16 @@ export const updateVideoHandler = async (
 
   await video.save();
   return res.status(StatusCodes.OK).send(video);
-}
+};
 
 export const findVideosHandler = async (req: Request, res: Response) => {
   const videos = await findVideos();
 
   return res.status(StatusCodes.OK).send(videos);
-}
+};
 
 export const streamVideoHandler = async (req: Request, res: Response) => {
-  const {videoId} = req.params;
+  const { videoId } = req.params;
 
   /**
    * Tells the server what part of the document should be returned.
@@ -112,16 +112,19 @@ export const streamVideoHandler = async (req: Request, res: Response) => {
 
   const fileSizeInBytes = fs.statSync(filePath).size;
 
-  const chunkStart = Number(range.replace(/\D/g, ''));
+  const chunkStart = Number(range.replace(/\D/g, ""));
 
   // Don't want to find a chunk outside of the files range
-  const chunkEnd = Math.min(chunkStart + CHUNK_SIZE_IN_BYTES, fileSizeInBytes - 1);
+  const chunkEnd = Math.min(
+    chunkStart + CHUNK_SIZE_IN_BYTES,
+    fileSizeInBytes - 1
+  );
 
   const contentLength = chunkEnd - chunkStart + 1;
 
   const headers = {
     "Content-Range": `bytes ${chunkStart}-${chunkEnd}/${fileSizeInBytes}`,
-    "Accept-Ranges": 'bytes',
+    "Accept-Ranges": "bytes",
     "Content-length": contentLength,
     "Content-Type": `video/${video.extension}`,
     // "Cross-Origin-Resource-Property": "cross-origin",
@@ -134,5 +137,5 @@ export const streamVideoHandler = async (req: Request, res: Response) => {
     end: chunkEnd,
   });
 
-  videoStream.pipe(res)
-}
+  videoStream.pipe(res);
+};

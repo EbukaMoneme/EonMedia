@@ -1,23 +1,25 @@
-import express from 'express';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import { connectToDatabase, disconnectFromDatabase } from './utils/database';
-import logger from './utils/logger';
-import { CORS_ORIGIN } from './constants';
-import helmet from 'helmet';
-import videoRoute from './modules/videos/videoRoute';
+import express from "express";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import { connectToDatabase, disconnectFromDatabase } from "./utils/database";
+import logger from "./utils/logger";
+import { CORS_ORIGIN } from "./constants";
+import helmet from "helmet";
+import videoRoute from "./modules/videos/videoRoute";
 
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4000;
 
 const app = express();
 
 // App middleware
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors({
-  origin: CORS_ORIGIN,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: CORS_ORIGIN,
+    credentials: true,
+  })
+);
 app.use(helmet());
 
 // Routes
@@ -26,14 +28,14 @@ app.use("/api/videos", videoRoute);
 const server = app.listen(PORT, async () => {
   await connectToDatabase();
   logger.info(`Server listening at http://localhost:${PORT}`);
-})
+});
 
 // Signals to perform graceful shutdown of server
 const signals = ["SIGTERM", "SIGINT"];
 
 /**
  * Function to disconnect from database and perform graceful shutdown of server
- * @param signal 
+ * @param signal
  */
 const gracefulShutdown = (signal: string) => {
   process.on(signal, async () => {
@@ -43,11 +45,11 @@ const gracefulShutdown = (signal: string) => {
     // disconnect from database
     await disconnectFromDatabase();
 
-    logger.info('Shutdown complete');
+    logger.info("Shutdown complete");
     process.exit(0);
-  })
-}
+  });
+};
 
-signals.forEach(signal => {
+signals.forEach((signal) => {
   gracefulShutdown(signal);
-})
+});
