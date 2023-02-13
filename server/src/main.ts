@@ -1,5 +1,5 @@
 import express from "express";
-import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
 import cors from "cors";
 import { connectToDatabase, disconnectFromDatabase } from "./utils/database";
 import logger from "./utils/logger";
@@ -8,11 +8,9 @@ import helmet from "helmet";
 import videoRoute from "./modules/videos/videoRoute";
 
 const PORT = process.env.PORT || 4000;
-
 const app = express();
 
 // App middleware
-app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
@@ -21,6 +19,9 @@ app.use(
   })
 );
 app.use(helmet());
+app.use(bodyParser.text({ limit: "400mb" }));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
 // Routes
 app.use("/api/videos", videoRoute);

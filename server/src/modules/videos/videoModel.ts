@@ -16,6 +16,9 @@ export class Video {
 
   @prop({ default: false })
   public published: boolean;
+
+  @prop()
+  public thumbnail: any;
 }
 
 export const VideoModel = getModelForClass(Video, {

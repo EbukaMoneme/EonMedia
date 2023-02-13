@@ -1,48 +1,68 @@
-import { createStyles, Box, Button, Header } from "@mantine/core";
+import { Box, Header, TextInput, ActionIcon } from "@mantine/core";
 import Image from "next/image";
-import { RiVideoUploadLine } from "react-icons/ri";
+import Link from "next/link";
 import { useStyles } from "./Styles";
 import { UploadVideo } from "./UploadVideo";
+import { BsSearch } from "react-icons/bs";
+import { useInputState } from "@mantine/hooks";
+import { useRouter } from "next/router";
 
-// const useStyles = createStyles((theme) => ({
-//   header: {
-//     border: "none",
-//     display: "flex",
-//     alignItems: "center",
-//     justifyContent: "space-between",
-//     backgroundColor: "transparent",
-//   },
-
-//   button: {
-//     backgroundImage: theme.fn.gradient(),
-//     position: "relative",
-//     transition: "background-color 150ms ease",
-//     fontSize: "1em",
-//     display: "flex",
-//     alignItems: "center",
-//     cursor: "pointer",
-//   },
-//   buttonIcon: {
-//     fontSize: "1.2em",
-//     padding: "0",
-//     marginRight: "5px",
-//   },
-// }));
-
+/**
+ * Header component with search bar and upload image button
+ */
 export const HeaderComponent = () => {
   const { classes } = useStyles();
+  const [search, setSearch] = useInputState("");
+  const router = useRouter();
+
+  const submitSearch = () => {
+    if (search) {
+      router.push({
+        pathname: "/search/",
+        query: { searchParams: search },
+      });
+    }
+  };
+
   return (
-    <Header height={120} p="lg" className={classes.header}>
+    <Header height={70} p="lg" className={classes.header}>
       <Box>
-        <Box>
-          <Image src="/eon.svg" alt="logo" width="80" height="80" />
-        </Box>
+        <Link href={`/`} onClick={() => setSearch("")}>
+          <Image src="/eon.svg" alt="logo" width="50" height="50" style={{}} />
+        </Link>
       </Box>
 
-      {/* <Button className={classes.button} mr={5}>
-        <RiVideoUploadLine className={classes.buttonIcon} />
-        Create
-      </Button> */}
+      <TextInput
+        radius="xl"
+        size="md"
+        w={600}
+        className={classes.searchBar}
+        value={search}
+        onChange={setSearch}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            submitSearch();
+          }
+          e.stopPropagation();
+        }}
+        rightSection={
+          <ActionIcon
+            type="submit"
+            size={40}
+            variant="light"
+            style={{
+              borderTopRightRadius: "30px",
+              borderBottomRightRadius: "30px",
+            }}
+            onClick={() => submitSearch()}
+          >
+            <BsSearch />
+          </ActionIcon>
+        }
+        placeholder="Search"
+        rightSectionWidth={40}
+      />
+
       <UploadVideo />
     </Header>
   );
